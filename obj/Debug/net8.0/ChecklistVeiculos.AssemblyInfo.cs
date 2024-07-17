@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChecklistVeiculos")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+842a0cf3ef230c71938f94e3762c970b2a371fd8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1aff662bb2835b7b1398a2b65206d59a4d3d2aa3")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChecklistVeiculos")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChecklistVeiculos")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
