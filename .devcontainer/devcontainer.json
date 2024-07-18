@@ -45,7 +45,9 @@
 				"ms-mssql.mssql",
 				"ms-azuretools.vscode-docker",
 				"ms-dotnettools.csdevkit",
-				"codezombiech.gitignore"
+				"codezombiech.gitignore",
+				"aliasadidev.nugetpackagemanagergui",
+				"richardwillis.vscode-entity-framework"
 			]
 		}
 	},
