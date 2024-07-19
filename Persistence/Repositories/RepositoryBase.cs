@@ -37,23 +37,30 @@ namespace ChecklistVeiculos.Persistence.Repositories
             return entity;
         }
 
-        public async Task<T> Update(T entity)
+        public async Task<bool?> Update(T entity, T newValuesEntity)
         {
             _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
+            
+            _dbSet.Entry(entity).CurrentValues.SetValues(newValuesEntity);
+            
+            var updatedCount = await _context.SaveChangesAsync();
+            if (updatedCount == 0)
+            {
+                return null;
+            }
+            return true;
         }
 
-        public async Task<T> Delete(int id)
+        public async Task<bool?> Delete(int id)
         {
             var entity = await _dbSet.FindAsync(id);
             if (entity == null)
             {
-                throw new Exception("Entity not found");
+                return null;
             }
             _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
-            return entity;
+            return true;
         }
     }
 }

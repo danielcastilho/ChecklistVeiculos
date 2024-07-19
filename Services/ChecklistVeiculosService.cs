@@ -57,6 +57,11 @@ namespace ChecklistVeiculos.Services
             return result;
         }
 
+        internal async Task<bool?> DeleteChecklist(int id)
+        {
+            return await checklistRepo.Delete(id);
+        }
+
         internal async Task<CheckListCreatedDTO?> GetChecklist(int id)
         {
             var checklist = await checklistRepo.GetById(id);
@@ -86,13 +91,19 @@ namespace ChecklistVeiculos.Services
             {
                 return null;
             }
-            checklist.PlacaVeiculo = updateCheckListDTO.Placa;
-            foreach (var item in checklist.Itens!)
+
+            ChecklistVeiculo newValues = new ChecklistVeiculo()
             {
-                item.Descricao = updateCheckListDTO.Descricao;
-                item.Status = updateCheckListDTO.Concluido ? ChecklistStatusEnum.Aprovado : ChecklistStatusEnum.Reprovado;
-            }
-            await checklistRepo.Update(checklist);
+                Id = id,
+                DescricaoVeiculo =updateCheckListDTO.Descricao,
+                Executor = checklist.Executor,
+                PlacaVeiculo = updateCheckListDTO.Placa,
+                Status = updateCheckListDTO.Status,
+                Itens = checklist.Itens
+
+            };
+            
+            var success = await checklistRepo.Update(checklist, newValues);
             return true;
         }
     }

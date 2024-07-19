@@ -66,5 +66,19 @@ namespace ChecklistVeiculos.Controllers
             }
             return Ok(updated);
         }
+        [HttpDelete]
+        [Route("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CheckListCreatedDTO>> DeleteChecklist([FromRoute] int id)
+        {
+            var deleted = await veiculosService.DeleteChecklist(id);
+            if(deleted == null)
+            {
+                return NotFound($"Checklist Id {id} não encontrado");
+            }
+            return Ok(deleted);
+        }
     }
 }
