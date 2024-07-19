@@ -95,7 +95,7 @@ namespace ChecklistVeiculos.Services
             ChecklistVeiculo newValues = new ChecklistVeiculo()
             {
                 Id = id,
-                DescricaoVeiculo =updateCheckListDTO.Descricao,
+                DescricaoVeiculo = updateCheckListDTO.Descricao,
                 Executor = checklist.Executor,
                 PlacaVeiculo = updateCheckListDTO.Placa,
                 Status = updateCheckListDTO.Status,
