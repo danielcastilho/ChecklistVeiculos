@@ -27,12 +27,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddLogging((config) => {
+builder.Services.AddLogging((config) =>
+{
     config.ClearProviders(); // Limpa os providers de log padrão
     config.AddConsole(); // Adiciona o provider de log para console
     config.AddConfiguration(builder.Configuration.GetSection("Logging")); // Adiciona a configuração de log do appsettings.json
     config.AddSimpleConsole(); // Adiciona o provider de log para console com formato JSON, seguindo a    configuração do appsettings.json
-    
+
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -69,9 +70,13 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
 
-// app.UseHttpsRedirection();
+
 
 app.Run();
 

@@ -47,7 +47,8 @@
 				"ms-dotnettools.csdevkit",
 				"codezombiech.gitignore",
 				"aliasadidev.nugetpackagemanagergui",
-				"richardwillis.vscode-entity-framework"
+				"richardwillis.vscode-entity-framework",
+				"salbert.online-help"
 			]
 		}
 	},
