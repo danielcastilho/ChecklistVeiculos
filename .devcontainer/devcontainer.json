@@ -48,7 +48,8 @@
 				"codezombiech.gitignore",
 				"aliasadidev.nugetpackagemanagergui",
 				"richardwillis.vscode-entity-framework",
-				"salbert.online-help"
+				"salbert.online-help",
+				"csharpier.csharpier-vscode"
 			]
 		}
 	},

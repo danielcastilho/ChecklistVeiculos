@@ -1,8 +1,7 @@
 namespace ChecklistVeiculos.Models
 {
-    public class ChecklistVeiculoModel : IModelBase
+    public class ChecklistVeiculoModel : ModelBase
     {
-        public int Id { get; set; }
         public string? PlacaVeiculo { get; set; }
         public string? DescricaoVeiculo { get; set; }
         public ChecklistStatusEnum Status { get; set; }

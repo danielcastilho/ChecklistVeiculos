@@ -10,9 +10,11 @@ namespace ChecklistVeiculos.Services
         ILogger<ChecklistVeiculosService> logger,
         ChecklistRepository checklistRepo,
         IGenericRepository<ChecklistVeiculoItemModel> checklistItemRepo,
-        IGenericRepository<ChecklistVeiculoObservacaoModel> itemObservacaoRepo) : ServiceBase<ApplicationDbContext>(context, logger)
+        IGenericRepository<ChecklistVeiculoObservacaoModel> itemObservacaoRepo
+    ) : ServiceBase<ApplicationDbContext>(context, logger)
     {
-        public async Task<CheckListCreatedDTO> CreateChecklist(NewCheckListDTO newCheckListDTO) {
+        public async Task<CheckListCreatedDTO> CreateChecklist(NewCheckListDTO newCheckListDTO)
+        {
             var checklist = new ChecklistVeiculoModel
             {
                 DescricaoVeiculo = newCheckListDTO.DescricaoVeiculo,
@@ -21,7 +23,7 @@ namespace ChecklistVeiculos.Services
                 Status = ChecklistStatusEnum.Pendente,
                 Itens = new List<ChecklistVeiculoItemModel>()
             };
-            foreach (var item in newCheckListDTO.Itens?? [])
+            foreach (var item in newCheckListDTO.Itens ?? [])
             {
                 var checklistItem = new ChecklistVeiculoItemModel
                 {
@@ -33,20 +35,28 @@ namespace ChecklistVeiculos.Services
             var created = await checklistRepo.Create(checklist);
             Logger.LogInformation("Checklist criado: {ChecklistId}", created.Id);
 
-            return new() {
+            return new()
+            {
                 Id = created.Id,
                 DescricaoVeiculo = created.DescricaoVeiculo,
                 PlacaVeiculo = created.PlacaVeiculo,
                 Executor = created.Executor,
                 Status = created.Status,
-                Itens = created.Itens!.Select(i => new CheckListCreatedDTO.CheckListItemDTO() {
-                    Descricao = i.Descricao,
-                    Observacoes = i.Observacoes?.Select(o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO() {
-                        Observacao = o.Observacao
-                    }).ToList()
-                }).ToList()
+                Itens = created
+                    .Itens!.Select(i => new CheckListCreatedDTO.CheckListItemDTO()
+                    {
+                        Descricao = i.Descricao,
+                        Observacoes = i
+                            .Observacoes?.Select(
+                                o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                {
+                                    Observacao = o.Observacao
+                                }
+                            )
+                            .ToList()
+                    })
+                    .ToList()
             };
-            
         }
 
         public async Task<bool?> DeleteChecklist(int id)
@@ -57,29 +67,38 @@ namespace ChecklistVeiculos.Services
         public async Task<CheckListCreatedDTO?> GetChecklist(int id)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
-            return new CheckListCreatedDTO() {
+            return new CheckListCreatedDTO()
+            {
                 Id = checklist.Id,
                 DescricaoVeiculo = checklist.DescricaoVeiculo,
                 PlacaVeiculo = checklist.PlacaVeiculo,
                 Executor = checklist.Executor,
                 Status = checklist.Status,
-                Itens = checklist.Itens?.Select(i => new CheckListCreatedDTO.CheckListItemDTO() {
-                    Descricao = i.Descricao,
-                    Observacoes = i.Observacoes?.Select(o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO() {
-                        Observacao = o.Observacao
-                    }).ToList()
-                }).ToList()
+                Itens = checklist
+                    .Itens?.Select(i => new CheckListCreatedDTO.CheckListItemDTO()
+                    {
+                        Descricao = i.Descricao,
+                        Observacoes = i
+                            .Observacoes?.Select(
+                                o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                {
+                                    Observacao = o.Observacao
+                                }
+                            )
+                            .ToList()
+                    })
+                    .ToList()
             };
         }
 
         public async Task<bool?> UpdateChecklist(int id, UpdateCheckListDTO updateCheckListDTO)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
@@ -90,23 +109,26 @@ namespace ChecklistVeiculos.Services
                 DescricaoVeiculo = updateCheckListDTO.Descricao,
                 Executor = checklist.Executor,
                 PlacaVeiculo = updateCheckListDTO.Placa
-
             };
-            
+
             var success = await checklistRepo.Update(checklist, newValues);
             return true;
         }
 
-        public async Task<bool?> UpdateChecklistItem(int id, int itemId, UpdateCheckListItemDTO updateCheckListItemDTO)
+        public async Task<bool?> UpdateChecklistItem(
+            int id,
+            int itemId,
+            UpdateCheckListItemDTO updateCheckListItemDTO
+        )
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
             {
                 return null;
             }
@@ -116,27 +138,32 @@ namespace ChecklistVeiculos.Services
                 Id = itemId,
                 Descricao = updateCheckListItemDTO.Descricao
             };
-            
+
             var success = await checklistItemRepo.Update(item, newValues);
             return true;
         }
 
-        public async Task<bool?> UpdateChecklistItemObservacao(int id, int itemId, int observacaoId, UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO)
+        public async Task<bool?> UpdateChecklistItemObservacao(
+            int id,
+            int itemId,
+            int observacaoId,
+            UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO
+        )
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
             {
                 return null;
             }
 
             var observacao = item.Observacoes?.FirstOrDefault(o => o.Id == observacaoId);
-            if(observacao == null)
+            if (observacao == null)
             {
                 return null;
             }
@@ -146,7 +173,7 @@ namespace ChecklistVeiculos.Services
                 Id = observacaoId,
                 Observacao = updateCheckListObservacaoDTO.Observacao
             };
-            
+
             var success = await itemObservacaoRepo.Update(observacao, newValues);
             return true;
         }
@@ -154,13 +181,13 @@ namespace ChecklistVeiculos.Services
         public async Task<bool?> DeleteChecklistItem(int id, int itemId)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
             {
                 return null;
             }
@@ -171,19 +198,19 @@ namespace ChecklistVeiculos.Services
         public async Task<bool?> DeleteChecklistItemObservacao(int id, int itemId, int observacaoId)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
             {
                 return null;
             }
 
             var observacao = item.Observacoes?.FirstOrDefault(o => o.Id == observacaoId);
-            if(observacao == null)
+            if (observacao == null)
             {
                 return null;
             }
@@ -191,29 +218,42 @@ namespace ChecklistVeiculos.Services
             return await itemObservacaoRepo.Delete(observacaoId);
         }
 
-        public async Task<IEnumerable<CheckListCreatedDTO>?> GetChecklists()
+        public async Task<IEnumerable<CheckListCreatedDTO>?> GetChecklists(
+            ChecklistStatusEnum? status = null,
+            int? takeLast = null
+        )
         {
-            var checklists = await checklistRepo.GetAll();
+            // TODO: Implementar default para takeLast pela leitura do appsettings.json ou por variável de ambiente
+            var checklists = await checklistRepo.GetByStatus(status, takeLast ?? 100);
 
-            return checklists?.Select(c => new CheckListCreatedDTO() {
+            return checklists?.Select(c => new CheckListCreatedDTO()
+            {
                 Id = c.Id,
                 DescricaoVeiculo = c.DescricaoVeiculo,
                 PlacaVeiculo = c.PlacaVeiculo,
                 Executor = c.Executor,
                 Status = c.Status,
-                Itens = c.Itens?.Select(i => new CheckListCreatedDTO.CheckListItemDTO() {
-                    Descricao = i.Descricao,
-                    Observacoes = i.Observacoes?.Select(o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO() {
-                        Observacao = o.Observacao
-                    }).ToList()
-                }).ToList()
+                Itens = c
+                    .Itens?.Select(i => new CheckListCreatedDTO.CheckListItemDTO()
+                    {
+                        Descricao = i.Descricao,
+                        Observacoes = i
+                            .Observacoes?.Select(
+                                o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                {
+                                    Observacao = o.Observacao
+                                }
+                            )
+                            .ToList()
+                    })
+                    .ToList()
             });
         }
 
         public async Task<bool?> UpdateChecklistStatus(int id, ChecklistStatusEnum status)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
@@ -226,7 +266,7 @@ namespace ChecklistVeiculos.Services
                 PlacaVeiculo = checklist.PlacaVeiculo,
                 Status = status
             };
-            
+
             await checklistRepo.Update(checklist, newValues);
 
             return true;
@@ -235,7 +275,7 @@ namespace ChecklistVeiculos.Services
         public async Task<bool?> AddChecklistItem(int id, NewCheckListItemDTO newItem)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
@@ -252,16 +292,50 @@ namespace ChecklistVeiculos.Services
             return true;
         }
 
-        public async Task<bool?> AddChecklistItemObservacao(int id, int itemId, NewCheckListItemObservacaoDTO newObservacao)
+        public async Task<CheckListItemCreatedDTO?> GetChecklistItem(int id, int itemId)
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
+            {
+                return null;
+            }
+
+            return new CheckListItemCreatedDTO()
+            {
+                Id = item.Id,
+                Descricao = item.Descricao,
+                Status = item.Status,
+                ChecklistVeiculoId = item.ChecklistVeiculoId,
+                Observacoes = item
+                    .Observacoes?.Select(o => new CheckListObservacaoCreatedDTO()
+                    {
+                        Id = o.Id,
+                        Observacao = o.Observacao
+                    })
+                    .ToList(),
+            };
+        }
+
+        public async Task<bool?> AddChecklistItemObservacao(
+            int id,
+            int itemId,
+            NewCheckListItemObservacaoDTO newObservacao
+        )
+        {
+            var checklist = await checklistRepo.GetById(id);
+            if (checklist == null)
+            {
+                return null;
+            }
+
+            var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
+            if (item == null)
             {
                 return null;
             }
@@ -277,22 +351,27 @@ namespace ChecklistVeiculos.Services
             return true;
         }
 
-        public async Task<bool?> UpdateCheckListItemObservacao(int id, int itemId, int observacaoId, UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO)
+        public async Task<bool?> UpdateCheckListItemObservacao(
+            int id,
+            int itemId,
+            int observacaoId,
+            UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO
+        )
         {
             var checklist = await checklistRepo.GetById(id);
-            if(checklist == null)
+            if (checklist == null)
             {
                 return null;
             }
 
             var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if(item == null)
+            if (item == null)
             {
                 return null;
             }
 
             var observacao = item.Observacoes?.FirstOrDefault(o => o.Id == observacaoId);
-            if(observacao == null)
+            if (observacao == null)
             {
                 return null;
             }
@@ -302,32 +381,126 @@ namespace ChecklistVeiculos.Services
                 Id = observacaoId,
                 Observacao = updateCheckListObservacaoDTO.Observacao
             };
-            
+
             var success = await itemObservacaoRepo.Update(observacao, newValues);
             return true;
         }
 
-        public async Task<CheckListCreatedDTO?> GetChecklistByPlaca(string placa)
+        public async Task<IList<CheckListCreatedDTO>?> GetChecklistsByPlaca(string placa)
         {
-            var checklist = await checklistRepo.GetByPlaca(placa);
-            if(checklist == null)
+            var checklists = await checklistRepo.GetByPlaca(placa);
+            if (checklists == null || checklists.Count == 0)
             {
                 return null;
             }
-            return new CheckListCreatedDTO() {
-                Id = checklist.Id,
-                DescricaoVeiculo = checklist.DescricaoVeiculo,
-                PlacaVeiculo = checklist.PlacaVeiculo,
-                Executor = checklist.Executor,
-                Status = checklist.Status,
-                Itens = checklist.Itens?.Select(i => new CheckListCreatedDTO.CheckListItemDTO() {
-                    Descricao = i.Descricao,
-                    Observacoes = i.Observacoes?.Select(o => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO() {
-                        Observacao = o.Observacao
-                    }).ToList()
-                }).ToList()
+
+            return checklists
+                .Select(checklist => new CheckListCreatedDTO()
+                {
+                    Id = checklist.Id,
+                    DescricaoVeiculo = checklist.DescricaoVeiculo,
+                    PlacaVeiculo = checklist.PlacaVeiculo,
+                    Executor = checklist.Executor,
+                    Status = checklist.Status,
+                    Itens = checklist
+                        .Itens?.Select(item => new CheckListCreatedDTO.CheckListItemDTO()
+                        {
+                            Descricao = item.Descricao,
+                            Observacoes = item
+                                .Observacoes?.Select(
+                                    observacao => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                    {
+                                        Observacao = observacao.Observacao
+                                    }
+                                )
+                                .ToList()
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+
+        public async Task<IList<CheckListCreatedDTO>?> GetChecklistsByPlacaAndExecutor(
+            string placa,
+            string executor
+        )
+        {
+            var checklists = await checklistRepo.GetByPlacaAndExecutor(placa, executor);
+            if (checklists == null || checklists.Count == 0)
+            {
+                return null;
+            }
+
+            return checklists
+                .Select(checklist => new CheckListCreatedDTO()
+                {
+                    Id = checklist.Id,
+                    DescricaoVeiculo = checklist.DescricaoVeiculo,
+                    PlacaVeiculo = checklist.PlacaVeiculo,
+                    Executor = checklist.Executor,
+                    Status = checklist.Status,
+                    Itens = checklist
+                        .Itens?.Select(item => new CheckListCreatedDTO.CheckListItemDTO()
+                        {
+                            Descricao = item.Descricao,
+                            Observacoes = item
+                                .Observacoes?.Select(
+                                    observacao => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                    {
+                                        Observacao = observacao.Observacao
+                                    }
+                                )
+                                .ToList()
+                        })
+                        .ToList()
+                })
+                .ToList();
+        }
+
+        public async Task<IList<CheckListCreatedDTO>?> GetChecklistsByExecutor(string executor)
+        {
+            var checklists = await checklistRepo.GetByExecutor(executor);
+            if (checklists == null || checklists.Count == 0)
+            {
+                return null;
+            }
+
+            return checklists
+                .Select(checklist => new CheckListCreatedDTO()
+                {
+                    Id = checklist.Id,
+                    DescricaoVeiculo = checklist.DescricaoVeiculo,
+                    PlacaVeiculo = checklist.PlacaVeiculo,
+                    Executor = checklist.Executor,
+                    Status = checklist.Status,
+                    Itens = checklist
+                        .Itens?.Select(item => new CheckListCreatedDTO.CheckListItemDTO()
+                        {
+                            Descricao = item.Descricao,
+                            Observacoes = item
+                                .Observacoes?.Select(
+                                    observacao => new CheckListCreatedDTO.CheckListItemDTO.CheckListObservacaoDTO()
+                                    {
+                                        Observacao = observacao.Observacao
+                                    }
+                                )
+                                .ToList()
+                        })
+                        .ToList()
+                }).ToList();
+                
+        }
+
+        internal async Task<bool?> ChangeChecklistStatus(int id, ChecklistStatusEnum status)
+        {
+            var newValues = new 
+            {
+                Status = status
             };
-        }        
+
+            await checklistRepo.Update(id, newValues);
+
+            return true;
+        }
     }
-    
 }

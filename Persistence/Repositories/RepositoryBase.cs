@@ -39,7 +39,7 @@ namespace ChecklistVeiculos.Persistence.Repositories
             return entity;
         }
 
-        public virtual async Task<bool?> Update(T entity, T newValuesEntity)
+        public virtual async Task<bool?> Update(T entity, object newValuesEntity)
         {
             _dbSet.Update(entity);
             
@@ -62,6 +62,23 @@ namespace ChecklistVeiculos.Persistence.Repositories
             }
             _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool?> Update(int id, object newValuesEntity)
+        {
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null)
+            {
+                return null;
+            }
+            _dbSet.Update(entity);
+            _dbSet.Entry(entity).CurrentValues.SetValues(newValuesEntity);
+            var updatedCount = await _context.SaveChangesAsync();
+            if (updatedCount == 0)
+            {
+                return false;
+            }
             return true;
         }
     }

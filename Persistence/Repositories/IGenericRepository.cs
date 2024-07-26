@@ -8,7 +8,8 @@ namespace ChecklistVeiculos.Persistence.Repositories
         Task<IEnumerable<T>?> GetAll();
         Task<T?> GetById(int id);
         Task<T> Create(T entity);
-        Task<bool?> Update(T entity, T newValuesEntity);
+        Task<bool?> Update(T entity, object newValuesEntity);
+        Task<bool?> Update(int id, object newValuesEntity);
         Task<bool?> Delete(int id);
     }
 }
