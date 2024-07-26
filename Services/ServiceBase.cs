@@ -16,6 +16,9 @@ namespace ChecklistVeiculos.Services
         protected ILogger Logger { get; }
 
         protected T Context { get { return this.context; }}
+
         
     }
+
+    
 }

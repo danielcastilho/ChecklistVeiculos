@@ -34,6 +34,7 @@ namespace ChecklistVeiculos.Persistence.Repositories
 
         public virtual async Task<T> Create(T entity)
         {
+            entity.DataAtualizacao = entity.DataCriacao = DateTime.Now;
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -81,5 +82,6 @@ namespace ChecklistVeiculos.Persistence.Repositories
             }
             return true;
         }
+
     }
 }

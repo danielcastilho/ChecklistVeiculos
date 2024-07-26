@@ -27,7 +27,7 @@
     6. Abra o link sugerido visual studio code para acessar a documentação da API
 
  ## Todo
-    - [ ] Implementar a funcionalidade de negócio com validações
+    - [ V ] Implementar a funcionalidade de negócio com validações
     - [ ] Implementar testes unitários
     - [ ] Implementar testes de integração
     - [ ] Implementar autenticação e autorização usando JWT

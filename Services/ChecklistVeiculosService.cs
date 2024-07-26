@@ -13,7 +13,10 @@ namespace ChecklistVeiculos.Services
         IGenericRepository<ChecklistVeiculoObservacaoModel> itemObservacaoRepo
     ) : ServiceBase<ApplicationDbContext>(context, logger)
     {
-        public async Task<CheckListCreatedDTO> CreateChecklist(NewCheckListDTO newCheckListDTO)
+        public async Task<CheckListCreatedDTO> CreateChecklist(
+            NewCheckListDTO newCheckListDTO,
+            string loggedUser
+        )
         {
             var checklist = new ChecklistVeiculoModel
             {
@@ -21,6 +24,8 @@ namespace ChecklistVeiculos.Services
                 PlacaVeiculo = newCheckListDTO.PlacaVeiculo,
                 Executor = newCheckListDTO.Executor,
                 Status = ChecklistStatusEnum.Pendente,
+                UsuarioCriacao = loggedUser,
+                UsuarioAtualizacao = loggedUser,
                 Itens = new List<ChecklistVeiculoItemModel>()
             };
             foreach (var item in newCheckListDTO.Itens ?? [])
@@ -95,7 +100,11 @@ namespace ChecklistVeiculos.Services
             };
         }
 
-        public async Task<bool?> UpdateChecklist(int id, UpdateCheckListDTO updateCheckListDTO)
+        public async Task<bool?> UpdateChecklist(
+            int id,
+            UpdateCheckListDTO updateCheckListDTO,
+            string loggedUser = "unknown"
+        )
         {
             var checklist = await checklistRepo.GetById(id);
             if (checklist == null)
@@ -108,7 +117,8 @@ namespace ChecklistVeiculos.Services
                 Id = id,
                 DescricaoVeiculo = updateCheckListDTO.Descricao,
                 Executor = checklist.Executor,
-                PlacaVeiculo = updateCheckListDTO.Placa
+                PlacaVeiculo = updateCheckListDTO.Placa,
+                UsuarioAtualizacao = loggedUser
             };
 
             var success = await checklistRepo.Update(checklist, newValues);
@@ -118,7 +128,8 @@ namespace ChecklistVeiculos.Services
         public async Task<bool?> UpdateChecklistItem(
             int id,
             int itemId,
-            UpdateCheckListItemDTO updateCheckListItemDTO
+            UpdateCheckListItemDTO updateCheckListItemDTO,
+            string userLogged = "unknown"
         )
         {
             var checklist = await checklistRepo.GetById(id);
@@ -136,7 +147,8 @@ namespace ChecklistVeiculos.Services
             ChecklistVeiculoItemModel newValues = new ChecklistVeiculoItemModel()
             {
                 Id = itemId,
-                Descricao = updateCheckListItemDTO.Descricao
+                Descricao = updateCheckListItemDTO.Descricao,
+                UsuarioAtualizacao = userLogged
             };
 
             var success = await checklistItemRepo.Update(item, newValues);
@@ -147,7 +159,8 @@ namespace ChecklistVeiculos.Services
             int id,
             int itemId,
             int observacaoId,
-            UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO
+            UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO,
+            string userLogged = "unknown"
         )
         {
             var checklist = await checklistRepo.GetById(id);
@@ -171,6 +184,7 @@ namespace ChecklistVeiculos.Services
             ChecklistVeiculoObservacaoModel newValues = new ChecklistVeiculoObservacaoModel()
             {
                 Id = observacaoId,
+                UsuarioAtualizacao = userLogged,
                 Observacao = updateCheckListObservacaoDTO.Observacao
             };
 
@@ -250,7 +264,11 @@ namespace ChecklistVeiculos.Services
             });
         }
 
-        public async Task<bool?> UpdateChecklistStatus(int id, ChecklistStatusEnum status)
+        public async Task<bool?> UpdateChecklistStatus(
+            int id,
+            ChecklistStatusEnum status,
+            string loggedUser = "unknown"
+        )
         {
             var checklist = await checklistRepo.GetById(id);
             if (checklist == null)
@@ -264,7 +282,8 @@ namespace ChecklistVeiculos.Services
                 DescricaoVeiculo = checklist.DescricaoVeiculo,
                 Executor = checklist.Executor,
                 PlacaVeiculo = checklist.PlacaVeiculo,
-                Status = status
+                Status = status,
+                UsuarioAtualizacao = loggedUser
             };
 
             await checklistRepo.Update(checklist, newValues);
@@ -272,7 +291,11 @@ namespace ChecklistVeiculos.Services
             return true;
         }
 
-        public async Task<bool?> AddChecklistItem(int id, NewCheckListItemDTO newItem)
+        public async Task<bool?> AddChecklistItem(
+            int id,
+            NewCheckListItemDTO newItem,
+            string loggedUser = "unknown"
+        )
         {
             var checklist = await checklistRepo.GetById(id);
             if (checklist == null)
@@ -282,6 +305,8 @@ namespace ChecklistVeiculos.Services
 
             var item = new ChecklistVeiculoItemModel()
             {
+                UsuarioAtualizacao = loggedUser,
+                UsuarioCriacao = loggedUser,
                 Descricao = newItem.Descricao,
                 Observacoes = new List<ChecklistVeiculoObservacaoModel>()
             };
@@ -325,7 +350,8 @@ namespace ChecklistVeiculos.Services
         public async Task<bool?> AddChecklistItemObservacao(
             int id,
             int itemId,
-            NewCheckListItemObservacaoDTO newObservacao
+            NewCheckListItemObservacaoDTO newObservacao,
+            string loggedUser = "unknown"
         )
         {
             var checklist = await checklistRepo.GetById(id);
@@ -342,47 +368,14 @@ namespace ChecklistVeiculos.Services
 
             var observacao = new ChecklistVeiculoObservacaoModel()
             {
+                UsuarioAtualizacao = loggedUser,
+                UsuarioCriacao = loggedUser,
                 Observacao = newObservacao.Observacao
             };
 
             item.Observacoes?.Add(observacao);
             await checklistRepo.Update(checklist, checklist);
 
-            return true;
-        }
-
-        public async Task<bool?> UpdateCheckListItemObservacao(
-            int id,
-            int itemId,
-            int observacaoId,
-            UpdateCheckListObservacaoDTO updateCheckListObservacaoDTO
-        )
-        {
-            var checklist = await checklistRepo.GetById(id);
-            if (checklist == null)
-            {
-                return null;
-            }
-
-            var item = checklist.Itens?.FirstOrDefault(i => i.Id == itemId);
-            if (item == null)
-            {
-                return null;
-            }
-
-            var observacao = item.Observacoes?.FirstOrDefault(o => o.Id == observacaoId);
-            if (observacao == null)
-            {
-                return null;
-            }
-
-            ChecklistVeiculoObservacaoModel newValues = new ChecklistVeiculoObservacaoModel()
-            {
-                Id = observacaoId,
-                Observacao = updateCheckListObservacaoDTO.Observacao
-            };
-
-            var success = await itemObservacaoRepo.Update(observacao, newValues);
             return true;
         }
 
@@ -487,16 +480,13 @@ namespace ChecklistVeiculos.Services
                                 .ToList()
                         })
                         .ToList()
-                }).ToList();
-                
+                })
+                .ToList();
         }
 
         internal async Task<bool?> ChangeChecklistStatus(int id, ChecklistStatusEnum status)
         {
-            var newValues = new 
-            {
-                Status = status
-            };
+            var newValues = new { Status = status };
 
             await checklistRepo.Update(id, newValues);
 

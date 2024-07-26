@@ -6,20 +6,21 @@ using ChecklistVeiculos.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ChecklistVeiculos.Controllers
 {
     [Route("api/[controller]")]
     [AllowAnonymous]
     [ApiController]
-    public class ChecklistVeiculosController : ControllerBase
+    public class ChecklistVeiculosController(
+        ChecklistVeiculosService veiculosService,
+        ILogger<ChecklistVeiculosController> logger
+    ) : ControllerBase
     {
-        private readonly ChecklistVeiculosService veiculosService;
+        private readonly ChecklistVeiculosService veiculosService = veiculosService;
 
-        public ChecklistVeiculosController(ChecklistVeiculosService veiculosService)
-        {
-            this.veiculosService = veiculosService;
-        }
+        public ILogger<ChecklistVeiculosController> Logger { get; } = logger;
 
         [HttpPost]
         [Route("create")]
@@ -30,20 +31,19 @@ namespace ChecklistVeiculos.Controllers
             [FromBody] NewCheckListDTO newCheckListDTO
         )
         {
-            var created = await veiculosService.CreateChecklist(newCheckListDTO);
+            var created = await veiculosService.CreateChecklist(newCheckListDTO, GetLoggedUser());
             if (created == null)
             {
-                // Created nunca deveria ser null, pois no caso de erro,
-                // uma exceção deveria ser lançada
                 return BadRequest(new { message = "Erro ao criar checklist" });
             }
-            return Ok(created);
+            return Created(string.Empty, created);
         }
 
         [HttpGet]
         [Route("get/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CheckListCreatedDTO>> GetChecklist([FromRoute] int id)
         {
@@ -76,7 +76,7 @@ namespace ChecklistVeiculos.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CheckListCreatedDTO>> DeleteChecklist([FromRoute] int id)
@@ -86,7 +86,7 @@ namespace ChecklistVeiculos.Controllers
             {
                 return NotFound($"Checklist Id {id} não encontrado");
             }
-            return Ok(deleted);
+            return Accepted();
         }
 
         [HttpPost]
@@ -99,7 +99,11 @@ namespace ChecklistVeiculos.Controllers
             [FromBody] NewCheckListItemDTO newCheckListItemDTO
         )
         {
-            var created = await veiculosService.AddChecklistItem(checklistId, newCheckListItemDTO);
+            var created = await veiculosService.AddChecklistItem(
+                checklistId,
+                newCheckListItemDTO,
+                GetLoggedUser()
+            );
             if (created == null)
             {
                 return BadRequest(new { message = "Erro ao criar item de checklist" });
@@ -163,7 +167,8 @@ namespace ChecklistVeiculos.Controllers
             var created = await veiculosService.AddChecklistItemObservacao(
                 checklistId,
                 itemId,
-                newCheckListObservacaoDTO
+                newCheckListObservacaoDTO,
+                GetLoggedUser()
             );
             if (created == null)
             {
@@ -268,7 +273,9 @@ namespace ChecklistVeiculos.Controllers
         [HttpGet]
         [Route("list-by-executor/{executor}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<List<CheckListCreatedDTO>>?> GetChecklistByExecutor(
             [FromRoute] string executor
         )
@@ -296,5 +303,22 @@ namespace ChecklistVeiculos.Controllers
             return Ok(changed);
         }
 
+        /**** Utilitiy methods ****/
+        /// <summary>
+        ///   Retornar o usuário logado
+        ///   Forma provisória de obter o usuário logado
+        ///   Enquanto a forma JWT não é implementada
+        /// </summary>
+        /// <returns></returns>
+        private string GetLoggedUser()
+        {
+            var user =
+                User?.Identity?.Name
+                ?? Environment.UserName
+                ?? Environment.GetEnvironmentVariable("USERNAME")
+                ?? "Unknown";
+            Logger.LogInformation("Usuário logado: {User}", user);
+            return user;
+        }
     }
 }
