@@ -51,9 +51,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         });
 });
 
-builder.Services.AddScoped<IGenericRepository<ChecklistVeiculo>, Repository<ChecklistVeiculo, ApplicationDbContext>>();
-builder.Services.AddScoped<IGenericRepository<ChecklistVeiculoItem>, Repository<ChecklistVeiculoItem, ApplicationDbContext>>();
-builder.Services.AddScoped<IGenericRepository<ChecklistVeiculoObservacao>, Repository<ChecklistVeiculoObservacao, ApplicationDbContext>>();
+builder.Services.AddScoped<ChecklistRepository>();
+builder.Services.AddScoped<IGenericRepository<ChecklistVeiculoItemModel>, Repository<ChecklistVeiculoItemModel, ApplicationDbContext>>();
+builder.Services.AddScoped<IGenericRepository<ChecklistVeiculoObservacaoModel>, Repository<ChecklistVeiculoObservacaoModel, ApplicationDbContext>>();
 builder.Services.AddScoped<ChecklistVeiculosService>();
 
 var app = builder.Build();

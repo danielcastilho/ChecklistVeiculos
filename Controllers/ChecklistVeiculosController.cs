@@ -11,11 +11,11 @@ namespace ChecklistVeiculos.Controllers
     [Route("api/[controller]")]
     [AllowAnonymous]
     [ApiController]
-    public class ChecklistVeiculos : ControllerBase
+    public class ChecklistVeiculosController : ControllerBase
     {
         private readonly ChecklistVeiculosService veiculosService;
 
-        public ChecklistVeiculos(ChecklistVeiculosService veiculosService)
+        public ChecklistVeiculosController(ChecklistVeiculosService veiculosService)
         {
             this.veiculosService = veiculosService;
         }

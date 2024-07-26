@@ -8,18 +8,20 @@ namespace ChecklistVeiculos.Persistence.Repositories
         private readonly TContext _context;
         private readonly DbSet<T> _dbSet;
 
+        protected DbSet<T> DbSet => _dbSet;
+
         public Repository(TContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>?> GetAll()
+        public virtual async Task<IEnumerable<T>?> GetAll()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> GetById(int id)
+        public virtual async Task<T?> GetById(int id)
         {
 
             var result = await _dbSet.FirstOrDefaultAsync<T>( p=>p.Id == id );
@@ -28,16 +30,16 @@ namespace ChecklistVeiculos.Persistence.Repositories
                 return null;
             }
             return result;
-        }
+        } 
 
-        public async Task<T> Create(T entity)
+        public virtual async Task<T> Create(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<bool?> Update(T entity, T newValuesEntity)
+        public virtual async Task<bool?> Update(T entity, T newValuesEntity)
         {
             _dbSet.Update(entity);
             
@@ -51,7 +53,7 @@ namespace ChecklistVeiculos.Persistence.Repositories
             return true;
         }
 
-        public async Task<bool?> Delete(int id)
+        public virtual async Task<bool?> Delete(int id)
         {
             var entity = await _dbSet.FindAsync(id);
             if (entity == null)
